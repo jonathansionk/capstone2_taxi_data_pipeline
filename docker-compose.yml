@@ -37,7 +37,7 @@ services:
   etl-pipeline:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
 
     container_name: nyc_taxi_pipeline
 
