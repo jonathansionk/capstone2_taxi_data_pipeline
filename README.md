@@ -14,8 +14,8 @@ Project ini bertujuan membangun pipeline data otomatis untuk mengolah data NYC T
 2. Clone Repository
     
     ```bash
-    git clone https:https://github.com/jonathansionk/capstone2_taxi_data_pipeline
-    capstone2_taxi_data_pipeline
+    git clone https://github.com/jonathansionk/capstone2_taxi_data_pipeline
+    cd capstone2_taxi_data_pipeline
 
 3. Pastikan Docker Aktif
     Buka Docker Desktop
@@ -103,9 +103,6 @@ Langkah menjalankan query:
 ├── run_pipeline.sh
 └── README.md
 ```
-
-
-## ERD dan Penjelasan Desain Tabel
 
 ## ERD Bronze dan Silver Layer
 
@@ -229,7 +226,7 @@ duration invalid
 distance invalid
 ```
 
-#### `Gold View`
+#### `6. Gold View`
 
 Gold Layer berfungsi menyediakan data yang sudah siap digunakan untuk analisis dan menjawab business questions. 
 Pada project ini, Gold Layer terdiri dari tiga view utama yaitu :
