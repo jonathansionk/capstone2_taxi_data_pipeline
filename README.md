@@ -37,14 +37,13 @@ Project ini bertujuan membangun pipeline data otomatis untuk mengolah data NYC T
 6. Database dapat di cek dengan menggunakan DBeaver
 
     konfigurasi koneksi ke Postgre SQL sebagai berikut :
-        Host      = `localhost` 
-        Port      = `5339`      
-        Database  = `taxi_db`  
-        Username  = `taxi_user`
-        Password  = `taxi_pass`
 
-
-
+    * Host      = `localhost` 
+    * Port      = `5339`
+    * Database  = `taxi_db` 
+    * Username  = `taxi_user`
+    * Password  = `taxi_pass`
+  
 ## Cara Menjalankan Query Analisis
 
 Query analisis disimpan pada:

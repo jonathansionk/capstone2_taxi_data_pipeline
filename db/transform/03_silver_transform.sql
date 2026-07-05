@@ -89,7 +89,7 @@ SELECT
 FROM bronze.raw_taxi_zones
 WHERE location_id IS NOT NULL;
 
--- Transformasi Bronze ke 
+-- Transformasi Bronze ke silver
 
 INSERT INTO silver.taxi_trips_cleaned (
     trip_id,

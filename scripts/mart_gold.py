@@ -36,7 +36,7 @@ def audit_log(step, status):
             },
         )
 
-# Function Menjalankan file Gold SQL
+# Function Menjalankan gold pipeline
 
 def run_gold_pipeline():
     

@@ -11,7 +11,7 @@ engine = create_engine(
     "taxi_user:taxi_pass@postgres:5432/taxi_db"
 )
 
-
+# membuat list kolom yang integer
 INTEGER_COLUMNS = {
     "vendor_id",
     "passenger_count",
@@ -87,8 +87,7 @@ TAXI_TRIP_FILE = './data/raw/yellow_tripdata_2026-01_raw.parquet'
 TAXI_ZONE_FILE = './data/raw/taxi_zone_lookup_raw.csv'
 
 
-# Membuat Truncate Function agar tidak duplikat
-# saat dijalankan lebih dari sekali
+# Membuat Truncate Function agar tidak duplikat saat dijalankan lebih dari sekali
 def truncate_table():
 
     with engine.begin() as conn:
