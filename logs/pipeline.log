@@ -1,0 +1,38 @@
+======================================
+2026-07-01 23:22:19 - Starting Database Pipeline
+======================================
+2026-07-01 23:22:19 - Checking PostgreSQL Database.....
+2026-07-01 23:22:19 - PostgreSQL Database is Ready
+2026-07-01 23:22:19 - Running main.py.....
+======================================
+2026-07-01 23:22:20 - START DATA PIPELINE
+======================================
+2026-07-01 23:22:20 - START: Database Initialization
+Succes: 01_schema.sql
+Succes: 02_bronze_load.sql
+Succes: 05_audit.sql
+2026-07-01 23:22:20 - SUCCESS: Database Initialization
+2026-07-01 23:22:20 - START: Extract Raw Data
+Download Succes, saved to : ./data/raw/yellow_tripdata_2026-01_raw.parquet
+Download Succes, saved to : ./data/raw/taxi_zone_lookup_raw.csv
+2026-07-01 23:22:34 - SUCCESS: Extract Raw Data
+2026-07-01 23:22:34 - START: Load Bronze
+Tables Truncated, Clean Start
+TAXI_TRIP_FILE Starting load to PostgreSQL...
+Taxi Trips File Loaded: 3724889 rows
+TAXI_ZONE_FILE Starting load to PostgreSQL...
+Taxi Zones File Loaded: 265 rows
+Bronze Pipeline Success
+2026-07-01 23:23:22 - SUCCESS: Load Bronze
+2026-07-01 23:23:22 - START: Transform Silver
+Starting Silver Pipeline...
+Running 03_silver_transform.sql...
+Silver Pipeline Success
+2026-07-01 23:24:43 - SUCCESS: Transform Silver
+2026-07-01 23:24:43 - START: Build Gold Mart
+Starting Gold Pipeline...
+Running 04_gold_mart.sql...
+Gold Pipeline Success
+2026-07-01 23:24:43 - SUCCESS: Build Gold Mart
+2026-07-01 23:24:43 - Database Pipeline Completed Successfully
+======================================

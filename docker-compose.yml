@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: nyc_taxi_db
+
+    environment:
+      POSTGRES_DB: taxi_db
+      POSTGRES_USER: taxi_user
+      POSTGRES_PASSWORD: taxi_pass
+      TZ: Asia/Jakarta
+      PGTZ: Asia/Jakarta
+
+    command:
+      - postgres
+      - -c
+      - timezone=Asia/Jakarta
+      - -c
+      - log_timezone=Asia/Jakarta
+
+    ports:
+      - "5339:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U taxi_user -d taxi_db"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+  etl-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: nyc_taxi_pipeline
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql+psycopg2://taxi_user:taxi_pass@postgres:5432/taxi_db
+      PYTHONUNBUFFERED: "1"
+      TZ: Asia/Jakarta
+
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+    command: ["bash", "run_pipeline.sh"]
+
+    restart: "no"
+
+volumes:
+  postgres_data:

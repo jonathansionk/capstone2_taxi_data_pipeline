@@ -4,7 +4,7 @@
 
 Project ini merupakan Capstone Project Module 2 dari Bootcamp Data Engineer Purwadhika.
 
-Project ini bertujuan membangun pipeline data otomatis untuk mengolah data NYC Yellow Taxi menggunakan Python, SQL, Shell Script, PostgreSQL, Docker, dan Docker Compose. Proses pipeline mencakup pengambilan data, load ke Bronze, transformasi ke Silver, pembuatan Gold Mart, pengecekan kualitas data, serta penyimpanan log proses pipeline.
+Project ini bertujuan membangun pipeline data otomatis untuk mengolah data NYC Taxi menggunakan Python, SQL, Shell Script, PostgreSQL, Docker, dan Docker Compose. Proses pipeline mencakup pengambilan data, load data ke Bronze, transformasi ke Silver, pembuatan view Gold Mart, pengecekan kualitas data, serta penyimpanan log proses pipeline.
 
 
 ## Cara Menjalankan Keseluruhan Project
@@ -107,85 +107,120 @@ Langkah menjalankan query:
 
 ## ERD dan Penjelasan Desain Tabel
 
+## ERD Bronze dan Silver Layer
+
 ```mermaid
 erDiagram
     BRONZE_RAW_TAXI_ZONES {
-        int location_id PK
-        text borough
-        text zone
-        text service_zone
+        INT location_id PK
+        TEXT borough
+        TEXT zone
+        TEXT service_zone
     }
 
     BRONZE_RAW_TAXI_TRIPS {
-        int trip_id PK
-        int vendor_id
-        timestamp pickup_datetime
-        timestamp dropoff_datetime
-        int passenger_count
-        float trip_distance
-        int pickup_location_id
-        int dropoff_location_id
-        int payment_type
-        float fare_amount
-        float tip_amount
-        float total_amount
+        SERIAL trip_id PK
+        INT vendor_id
+        TIMESTAMP pickup_datetime
+        TIMESTAMP dropoff_datetime
+        INT passenger_count
+        FLOAT trip_distance
+        INT ratecode_id
+        TEXT store_and_fwd_flag
+        INT pickup_location_id
+        INT dropoff_location_id
+        INT payment_type
+        FLOAT fare_amount
+        FLOAT extra
+        FLOAT mta_tax
+        FLOAT tip_amount
+        FLOAT tolls_amount
+        FLOAT improvement_surcharge
+        FLOAT total_amount
+        FLOAT congestion_surcharge
+        FLOAT airport_fee
+        FLOAT cbd_congestion_fee
     }
 
     SILVER_TAXI_ZONES {
-        int location_id PK
-        text borough
-        text zone
-        text service_zone
+        INT location_id PK
+        TEXT borough
+        TEXT zone
+        TEXT service_zone
     }
 
     SILVER_TAXI_TRIPS_CLEANED {
-        int trip_id PK
-        date pickup_date
-        int pickup_hour
-        text pickup_day_name
-        boolean is_weekend
-        text time_period
-        numeric trip_duration_minutes
-        int pickup_location_id
-        text pickup_borough
-        text pickup_zone
-        int dropoff_location_id
-        text dropoff_borough
-        text dropoff_zone
-        text payment_type_label
-        float total_amount
+        INT trip_id PK
+        INT vendor_id
+        TIMESTAMP pickup_datetime
+        TIMESTAMP dropoff_datetime
+        DATE pickup_date
+        SMALLINT pickup_hour
+        TEXT pickup_day_name
+        BOOLEAN is_weekend
+        VARCHAR time_period
+        NUMERIC trip_duration_minutes
+        INT passenger_count
+        NUMERIC trip_distance
+        INT ratecode_id
+        TEXT store_and_fwd_flag
+        VARCHAR store_and_fwd_label
+        INT pickup_location_id
+        TEXT pickup_borough
+        TEXT pickup_zone
+        TEXT pickup_service_zone
+        INT dropoff_location_id
+        TEXT dropoff_borough
+        TEXT dropoff_zone
+        TEXT dropoff_service_zone
+        SMALLINT payment_type_id
+        VARCHAR payment_type_label
+        NUMERIC fare_amount
+        NUMERIC extra
+        NUMERIC mta_tax
+        NUMERIC tip_amount
+        NUMERIC tolls_amount
+        NUMERIC improvement_surcharge
+        NUMERIC total_amount
+        NUMERIC congestion_surcharge
+        NUMERIC airport_fee
+        NUMERIC cbd_congestion_fee
     }
 
     SILVER_DATA_QUALITY_ISSUES {
-        int issue_id PK
-        int trip_id
-        text error_type
+        SERIAL issue_id PK
+        INT trip_id
+        VARCHAR error_type
     }
 
-    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : pickup_location
-    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : dropoff_location
-    SILVER_TAXI_TRIPS_CLEANED ||--o{ SILVER_DATA_QUALITY_ISSUES : trip_id
+    BRONZE_RAW_TAXI_ZONES ||--o{ BRONZE_RAW_TAXI_TRIPS : "pickup_location_id"
+    BRONZE_RAW_TAXI_ZONES ||--o{ BRONZE_RAW_TAXI_TRIPS : "dropoff_location_id"
+
+    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : "pickup_location_id"
+    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : "dropoff_location_id"
+
+    BRONZE_RAW_TAXI_TRIPS ||--o{ SILVER_DATA_QUALITY_ISSUES : "trip_id bermasalah"
 ```
 
 ## Penjelasan desain tabel
 
-#### `bronze.raw_taxi_trips`
+#### `1. bronze.raw_taxi_trips`
 
-Menyimpan seluruh data perjalanan mentah. Kolom `trip_id` menggunakan `SERIAL PRIMARY KEY` sebagai identifier internal.
+Menyimpan seluruh data mentah Taxi Trip dari hasil extract.
 
-#### `bronze.raw_taxi_zones`
+#### `2. bronze.raw_taxi_zones`
 
-Menyimpan referensi lokasi berdasarkan `location_id`.
+Menyimpan seluruh data mentah Taxi Zones dari hasil extract.
 
-#### `silver.taxi_trips_cleaned`
+#### `3. silver.taxi_trips_cleaned`
 
-Menyimpan data perjalanan yang sudah divalidasi dan diperkaya dengan informasi tanggal, jam, durasi, payment type, borough, dan zone.
+Menyimpan data perjalanan yang sudah divalidasi dan diperkaya dengan informasi tambahan.
 
-#### `silver.taxi_zones`
+#### `4. silver.taxi_zones`
 
-Menyimpan referensi zona yang digunakan dalam Silver Layer.
+Menyimpan referensi zona yang digunakan dalam tabel silver.taxi_trips_cleaned.
 
-#### `silver.data_quality_issues`
+#### `5. silver.data_quality_issues`
 
 Menyimpan perjalanan yang memiliki masalah kualitas data, antara lain:
 
@@ -194,9 +229,14 @@ duration invalid
 distance invalid
 ```
 
-#### Gold Views
+#### `Gold View`
 
-Gold Layer menggunakan view agar hasil analisis selalu mengikuti data Silver terbaru tanpa menyimpan duplikasi data fisik.
+Gold Layer berfungsi menyediakan data yang sudah siap digunakan untuk analisis dan menjawab business questions. 
+Pada project ini, Gold Layer terdiri dari tiga view utama yaitu :
+
+1. gold.vw_trip_enriched : menyajikan data perjalanan taksi yang sudah diperkaya dengan informasi tambahan.
+2. gold.vw_daily_trip_summary : menyajikan ringkasan perjalanan berdasarkan tanggal pickup.
+3. gold.vw_zone_performance : menyajikan performa setiap pickup zone.
 
 ---
 
@@ -218,7 +258,7 @@ Business questions yang dianalisis:
 12. Ambil top 3 pickup zone untuk setiap borough menggunakan ROW_NUMBER, RANK, atau DENSE_RANK.
 ---
 
-## Kendala Teknis dan Asumsi
+## Kendala Teknis
 
 #### Proses load data membutuhkan waktu lama
 
@@ -228,5 +268,5 @@ Solusi:
 
 * Menggunakan PostgreSQL `COPY`.
 * Menggunakan `chunksize` yang lebih besar.
-* Mengubah tipe integer sebelum data dikirim ke PostgreSQL.
+
 
