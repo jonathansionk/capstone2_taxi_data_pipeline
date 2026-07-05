@@ -14,8 +14,8 @@ Project ini bertujuan membangun pipeline data otomatis untuk mengolah data NYC T
 2. Clone Repository
     
     ```bash
-    git clone https:XXX
-    cd cXXX
+    git clone https:https://github.com/jonathansionk/capstone2_taxi_data_pipeline
+    capstone2_taxi_data_pipeline
 
 3. Pastikan Docker Aktif
     Buka Docker Desktop
