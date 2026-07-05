@@ -107,15 +107,17 @@ Langkah menjalankan query:
 ## ERD Bronze dan Silver Layer
 
 ```mermaid
+%%{init: {"themeVariables": {"edgeLabelBackground": "transparent"}}}%%
+
 erDiagram
-    BRONZE_RAW_TAXI_ZONES {
+    bronze_raw_taxi_zones {
         INT location_id PK
         TEXT borough
         TEXT zone
         TEXT service_zone
     }
 
-    BRONZE_RAW_TAXI_TRIPS {
+    bronze_raw_taxi_trips {
         SERIAL trip_id PK
         INT vendor_id
         TIMESTAMP pickup_datetime
@@ -139,14 +141,14 @@ erDiagram
         FLOAT cbd_congestion_fee
     }
 
-    SILVER_TAXI_ZONES {
+    silver_taxi_zones {
         INT location_id PK
         TEXT borough
         TEXT zone
         TEXT service_zone
     }
 
-    SILVER_TAXI_TRIPS_CLEANED {
+    silver_taxi_trips_cleaned {
         INT trip_id PK
         INT vendor_id
         TIMESTAMP pickup_datetime
@@ -184,19 +186,17 @@ erDiagram
         NUMERIC cbd_congestion_fee
     }
 
-    SILVER_DATA_QUALITY_ISSUES {
+    silver_data_quality_issues {
         SERIAL issue_id PK
         INT trip_id
         VARCHAR error_type
     }
 
-    BRONZE_RAW_TAXI_ZONES ||--o{ BRONZE_RAW_TAXI_TRIPS : "pickup_location_id"
-    BRONZE_RAW_TAXI_ZONES ||--o{ BRONZE_RAW_TAXI_TRIPS : "dropoff_location_id"
+    silver_taxi_zones ||--o{ silver_taxi_trips_cleaned : "pickup_location_id"
 
-    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : "pickup_location_id"
-    SILVER_TAXI_ZONES ||--o{ SILVER_TAXI_TRIPS_CLEANED : "dropoff_location_id"
+    silver_taxi_zones ||--o{ silver_taxi_trips_cleaned : "dropoff_location_id"
 
-    BRONZE_RAW_TAXI_TRIPS ||--o{ SILVER_DATA_QUALITY_ISSUES : "trip_id bermasalah"
+    silver_taxi_trips_cleaned ||--o{ silver_data_quality_issues : "trip_id"
 ```
 
 ## Penjelasan desain tabel
